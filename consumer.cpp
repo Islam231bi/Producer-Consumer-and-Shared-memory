@@ -10,6 +10,11 @@
 #include <iomanip>
 #include <vector>
 
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_RESET "\x1b[0m"
+
 using namespace std;
 
 int main(int argc, char** argv)
@@ -26,6 +31,9 @@ int main(int argc, char** argv)
     vector<double> comms_avg_prev (11,0);
     vector<string> comms_arrow (11," ");
     vector<string> comms_arrow_avg (11," ");
+    vector<int> color_val (11, 0);
+    vector<int> color_avg (11, 0);
+
 
     vector<string> comms = {"ALUMINIUM", "COPEER", "COTTON", "CRUDEOIL", "GOLD", "LEAD", "MENTHAOIL",
     "NATURALGAS", "NICKEL", "SILVER", "ZINC"};
@@ -92,17 +100,29 @@ int main(int argc, char** argv)
         }
 
         for(int i = 0 ; i< 11 ; i++){
+
+        }
+
+        for(int i = 0 ; i< 11 ; i++){
             if (comms_val[i] > comms_prev[i]){
                 //inc
                 comms_arrow[i] = "↑";
                 comms_prev[i] = comms_val[i];
+                color_val[i] = 1; // green
+
             }
             else if (comms_val[i] < comms_prev[i]) {
                 //dec
                 comms_arrow[i] = "↓";
                 comms_prev[i] = comms_val[i];
+                color_val[i] = -1; //red
             }
-            comms_prev[i] = comms_val[i];
+            else {
+                comms_prev[i] = comms_val[i];
+                color_val[i] = 0; //blue
+                comms_arrow[i] = " ";
+            }
+            
         }
 
         for(int i = 0 ; i< 11 ; i++){
@@ -110,13 +130,17 @@ int main(int argc, char** argv)
                 //inc
                 comms_arrow_avg[i] = "↑";
                 comms_avg_prev[i] = comms_avg[i];
+                color_avg[i] = 1;
             }
             else if (comms_avg[i] < comms_avg_prev[i]){
                 //inc
                 comms_arrow_avg[i] = "↓";
                 comms_avg_prev[i] = comms_avg[i];
+                color_avg[i] = -1;
             }
             comms_avg_prev[i] = comms_avg[i];
+            color_avg[i] = 0;
+            comms_arrow_avg[i] = " ";
         }
 
         // Price formatting
@@ -127,20 +151,39 @@ int main(int argc, char** argv)
         printf("\e[1;1H\e[2J");
     
         // Print output
-        printf("+--------------------------------------+\n");
-        cout<<"|"<<left<<setw(12)<<setfill(' ')<<"Currency";
-        cout<<"|"<<left<<setw(12)<<setfill(' ')<<"Price";
-        cout<<"|"<<left<<setw(12)<<setfill(' ')<<"AvgPrice    |\n";
-        printf("+--------------------------------------+\n");
+        printf("+-----------------------------------------------+\n");
+        cout<<"|"<<setw(13)<<setfill(' ')<<"Currency"<<setw(5);
+        cout<<"|"<<setw(2)<<setfill(' ')<<"Price"<<setw(10);
+        cout<<"|"<<setw(2)<<setfill(' ')<<"AvgPrice      |\n";
+        printf("+-----------------------------------------------+\n");
         for(int i = 0 ; i < 11 ; i++){
-            cout<<"|"<<left<<setw(12)<<setfill(' ')<<comms[i];
-            cout<<"|"<<left<<setw(12)<<setfill(' ')<<comms_val[i]<<comms_arrow[i];
-            cout<<"|"<<left<<setw(12)<<setfill(' ')<<comms_avg[i]<<comms_arrow_avg[i]<<"|\n";
+            cout<<"|"<<setw(13)<<setfill(' ')<<comms[i]<<setw(5);
+            if (color_val[i] == 0)
+                cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"34m"<<setw(10);
+            else if (color_val[i] == 1){
+                cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"32m"<<setw(10);
+            }
+            else if (color_val[i] == -1){
+                 cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"31m"<<setw(10);
+            }
+            cout<<comms_val[i]<<comms_arrow[i];
+            cout<<"\x1b["<<"0m";
+            if (color_avg[i] == 0)
+                cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"34m"<<setw(10);
+            else if (color_avg[i] == 1){
+                cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"32m"<<setw(10);
+            }
+            else if (color_avg[i] == -1){
+                 cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"31m"<<setw(10);
+            }
+            cout<<comms_avg[i]<<comms_arrow_avg[i];
+            cout<<"\x1b["<<"0m";
+            cout<<"|\n";
         }
-        printf("+--------------------------------------+\n");
+        printf("+-----------------------------------------------+\n");
 
         // Delay
-		usleep(1000 * 50);    
+		usleep(1000 * 100);    
     }
 
    //detach from shared memory
