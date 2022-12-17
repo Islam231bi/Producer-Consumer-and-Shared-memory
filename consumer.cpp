@@ -34,6 +34,8 @@ int main(int argc, char** argv)
     vector<int> color_val (11, 0);
     vector<int> color_avg (11, 0);
 
+    vector<double> vals[11];
+
 
     vector<string> comms = {"ALUMINIUM", "COPEER", "COTTON", "CRUDEOIL", "GOLD", "LEAD", "MENTHAOIL",
     "NATURALGAS", "NICKEL", "SILVER", "ZINC"};
@@ -59,48 +61,136 @@ int main(int argc, char** argv)
     	b->next_out = (b->next_out + 1) % buffer_size;
         /*End of critical section*/
 
+        int cnt = 0;
+        // Usage
         switch (item.commodity)
         {
         case 'A':
             comms_val[0] = item.price;
+            vals[0].push_back(item.price);
+            cout<<"dasd\n";
+            comms_avg[0] = 0;
+            cnt = 0; 
+            for(int i = vals[0].size() - 1, x = 0 ; i >= 0 && x < 5 ; i--, x++){
+                comms_avg[0]+=vals[0][i];
+                cnt++;
+            }
+            comms_avg[0]/=cnt;
+            
             break;
         case 'C':
             comms_val[1] = item.price;
+            vals[1].push_back(item.price);
+            comms_avg[1] = 0;
+            cnt = 0;  // 7 --> 
+            for(int i = vals[1].size() - 1, x = 0 ; i >= 0 && x < 5 ; i--, x++){
+                comms_avg[1]+=vals[1][i];
+                cnt++;
+            }
+            comms_avg[1]/=cnt;
             break;
         case 'T':
             comms_val[2] = item.price;
+            vals[2].push_back(item.price);
+            comms_avg[2] = 0;
+            cnt = 0;  // 7 --> 
+            for(int i = vals[2].size() - 1, x = 0 ; i >= 0 && x < 5 ; i--, x++){
+                comms_avg[2]+=vals[2][i];
+                cnt++;
+            }
+            comms_avg[2]/=cnt;
             break;
         case 'R':
             comms_val[3] = item.price;
+            vals[3].push_back(item.price);
+            comms_avg[3] = 0;
+            cnt = 0;  // 7 --> 
+            for(int i = vals[3].size() - 1, x = 0 ; i >= 0 && x < 5 ; i--, x++){
+                comms_avg[3]+=vals[3][i];
+                cnt++;
+            }
+            comms_avg[3]/=cnt;
             break;
         case 'G':
             comms_val[4] = item.price;
+            vals[4].push_back(item.price);
+            comms_avg[4] = 0;
+            cnt = 0;  // 7 --> 
+            for(int i = vals[4].size() - 1, x = 0 ; i >= 0 && x < 5 ; i--, x++){
+                comms_avg[4]+=vals[4][i];
+                cnt++;
+            }
+            comms_avg[4]/=cnt;
             break;
         case 'L':
             comms_val[5] = item.price;
+            vals[5].push_back(item.price);
+            comms_avg[5] = 0;
+            cnt = 0;  // 7 --> 
+            for(int i = vals[5].size() - 1, x = 0 ; i >= 0 && x < 5 ; i--, x++){
+                comms_avg[5]+=vals[5][i];
+                cnt++;
+            }
+            comms_avg[5]/=cnt;
             break;
         case 'M':
             comms_val[6] = item.price;
+            vals[6].push_back(item.price);
+            comms_avg[6] = 0;
+            cnt = 0;  // 7 --> 
+            for(int i = vals[6].size() - 1, x = 0 ; i >= 0 && x < 5 ; i--, x++){
+                comms_avg[6]+=vals[6][i];
+                cnt++;
+            }
+            comms_avg[6]/=cnt;
             break;
         case 'N':
             comms_val[7] = item.price;
+            vals[7].push_back(item.price);
+            comms_avg[7] = 0;
+            cnt = 0;  // 7 --> 
+            for(int i = vals[7].size() - 1, x = 0 ; i >= 0 && x < 5 ; i--, x++){
+                comms_avg[7]+=vals[7][i];
+                cnt++;
+            }
+            comms_avg[7]/=cnt;
             break;
         case 'K':
             comms_val[8] = item.price;
+            vals[8].push_back(item.price);
+            comms_avg[8] = 0;
+            cnt = 0;  // 7 --> 
+            for(int i = vals[8].size() - 1, x = 0 ; i >= 0 && x < 5 ; i--, x++){
+                comms_avg[8]+=vals[8][i];
+                cnt++;
+            }
+            comms_avg[8]/=cnt;
             break;
         case 'S':
             comms_val[9] = item.price;
+            vals[9].push_back(item.price);
+            comms_avg[9] = 0;
+            cnt = 0;  // 7 --> 
+            for(int i = vals[9].size() - 1, x = 0 ; i >= 0 && x < 5 ; i--, x++){
+                comms_avg[9]+=vals[9][i];
+                cnt++;
+            }
+            comms_avg[9]/=cnt;
             break;
         case 'Z':
             comms_val[10] = item.price;
+            vals[10].push_back(item.price);
+            comms_avg[10] = 0;
+            cnt = 0;  // 7 --> 
+            for(int i = vals[10].size() - 1, x = 0 ; i >= 0 && x < 5 ; i--, x++){
+                comms_avg[10]+=vals[10][i];
+                cnt++;
+            }
+            comms_avg[10]/=cnt;
             break;
         
         default:
             break;
-        }
-
-        for(int i = 0 ; i< 11 ; i++){
-
         }
 
         for(int i = 0 ; i< 11 ; i++){
@@ -138,9 +228,12 @@ int main(int argc, char** argv)
                 comms_avg_prev[i] = comms_avg[i];
                 color_avg[i] = -1;
             }
-            comms_avg_prev[i] = comms_avg[i];
-            color_avg[i] = 0;
-            comms_arrow_avg[i] = " ";
+            else{
+                comms_avg_prev[i] = comms_avg[i];
+                color_avg[i] = 0;
+                comms_arrow_avg[i] = " ";
+            }
+            
         }
 
         // Price formatting
@@ -167,7 +260,9 @@ int main(int argc, char** argv)
                  cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"31m"<<setw(10);
             }
             cout<<comms_val[i]<<comms_arrow[i];
+            
             cout<<"\x1b["<<"0m";
+
             if (color_avg[i] == 0)
                 cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"34m"<<setw(10);
             else if (color_avg[i] == 1){
@@ -183,7 +278,7 @@ int main(int argc, char** argv)
         printf("+-----------------------------------------------+\n");
 
         // Delay
-		usleep(1000 * 100);    
+		usleep(1000 * 200);    
     }
 
    //detach from shared memory
