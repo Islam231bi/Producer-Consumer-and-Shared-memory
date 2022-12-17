@@ -55,13 +55,12 @@ int main(int argc, char** argv)
 	buffer *b = (buffer *) mem_seg;
 
     while(1){
-        
         double price = distribution(generator);
+        
         /* Start of critical section*/
-       
 		b->value[b->next_in].price = price;
         b->value[b->next_in].commodity = mp[commodity_name];
-        b->next_in = (b->next_in + 1) % 4;
+        b->next_in = (b->next_in + 1) % buffer_size;
         /*End of critical section*/
 
         // Delay

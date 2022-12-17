@@ -6,6 +6,9 @@
 #include <chrono>
 #include <map>
 #include <unistd.h>
+#include <cstring>
+#include <iomanip>
+#include <vector>
 
 using namespace std;
 
@@ -17,18 +20,15 @@ int main(int argc, char** argv)
         return -1;
     }
 
-    map<char,string> mp;
-    mp['G'] = "GOLD";
-    mp['S'] = "SILVER";
-    mp['R'] = "CRUDEOIL";
-    mp['N'] = "NATURALGAS";
-    mp['A'] = "ALUMINIUM";
-    mp['C'] = "COPPER";
-    mp['K'] = "NICKEL";
-    mp['L'] = "LEAD";
-    mp['Z'] = "ZINC";
-    mp['M'] = "MENTHAOIL";
-    mp['T'] = "COTTON";
+    vector<double> comms_val (11,0);
+    vector<double> comms_avg (11,0);
+    vector<double> comms_prev (11,0);
+    vector<double> comms_avg_prev (11,0);
+    vector<string> comms_arrow (11," ");
+    vector<string> comms_arrow_avg (11," ");
+
+    vector<string> comms = {"ALUMINIUM", "COPEER", "COTTON", "CRUDEOIL", "GOLD", "LEAD", "MENTHAOIL",
+    "NATURALGAS", "NICKEL", "SILVER", "ZINC"};
 
     int buffer_size = stoi(argv[1]);
      
@@ -43,20 +43,104 @@ int main(int argc, char** argv)
 
 	buffer *b = new (mem_seg) buffer;
 
-
     while(1){
+
+        /*Start critical section*/
         buf_data item = b->value[b->next_out];
-        // item.price = b->value[b->next_out].price;
-        // item.commodity = b->value[b->next_out].commodity;
-    	b->value[b->next_out].price = 0;
-    	b->next_out = (b->next_out + 1) % 4;
+    	// b->value[b->next_out].price = 0;
+    	b->next_out = (b->next_out + 1) % buffer_size;
+        /*End of critical section*/
 
-        cout<<"===============\n";
-        cout<<item.commodity<<"\n";
-		cout<<item.price<<"\n";
-        cout<<"===============\n";
+        switch (item.commodity)
+        {
+        case 'A':
+            comms_val[0] = item.price;
+            break;
+        case 'C':
+            comms_val[1] = item.price;
+            break;
+        case 'T':
+            comms_val[2] = item.price;
+            break;
+        case 'R':
+            comms_val[3] = item.price;
+            break;
+        case 'G':
+            comms_val[4] = item.price;
+            break;
+        case 'L':
+            comms_val[5] = item.price;
+            break;
+        case 'M':
+            comms_val[6] = item.price;
+            break;
+        case 'N':
+            comms_val[7] = item.price;
+            break;
+        case 'K':
+            comms_val[8] = item.price;
+            break;
+        case 'S':
+            comms_val[9] = item.price;
+            break;
+        case 'Z':
+            comms_val[10] = item.price;
+            break;
+        
+        default:
+            break;
+        }
 
-		usleep(1000 * 3000);    
+        for(int i = 0 ; i< 11 ; i++){
+            if (comms_val[i] > comms_prev[i]){
+                //inc
+                comms_arrow[i] = "↑";
+                comms_prev[i] = comms_val[i];
+            }
+            else if (comms_val[i] < comms_prev[i]) {
+                //dec
+                comms_arrow[i] = "↓";
+                comms_prev[i] = comms_val[i];
+            }
+            comms_prev[i] = comms_val[i];
+        }
+
+        for(int i = 0 ; i< 11 ; i++){
+            if (comms_avg[i] > comms_avg_prev[i]){
+                //inc
+                comms_arrow_avg[i] = "↑";
+                comms_avg_prev[i] = comms_avg[i];
+            }
+            else if (comms_avg[i] < comms_avg_prev[i]){
+                //inc
+                comms_arrow_avg[i] = "↓";
+                comms_avg_prev[i] = comms_avg[i];
+            }
+            comms_avg_prev[i] = comms_avg[i];
+        }
+
+        // Price formatting
+        std::cout << std::fixed;
+        std::cout << std::setprecision(2);
+
+        // Clear screen
+        printf("\e[1;1H\e[2J");
+    
+        // Print output
+        printf("+--------------------------------------+\n");
+        cout<<"|"<<left<<setw(12)<<setfill(' ')<<"Currency";
+        cout<<"|"<<left<<setw(12)<<setfill(' ')<<"Price";
+        cout<<"|"<<left<<setw(12)<<setfill(' ')<<"AvgPrice    |\n";
+        printf("+--------------------------------------+\n");
+        for(int i = 0 ; i < 11 ; i++){
+            cout<<"|"<<left<<setw(12)<<setfill(' ')<<comms[i];
+            cout<<"|"<<left<<setw(12)<<setfill(' ')<<comms_val[i]<<comms_arrow[i];
+            cout<<"|"<<left<<setw(12)<<setfill(' ')<<comms_avg[i]<<comms_arrow_avg[i]<<"|\n";
+        }
+        printf("+--------------------------------------+\n");
+
+        // Delay
+		usleep(1000 * 50);    
     }
 
    //detach from shared memory
@@ -68,17 +152,16 @@ int main(int argc, char** argv)
 	return 0;
 }
 
-
 /*
-GOLD => G
-SILVER => S
-CRUDEOIL => R
-NATURALGAS => N
-ALUMINIUM => A
-COPPER => C
-NICKEL => K
-LEAD => L
-ZINC => Z
-MENTHAOIL => M
-COTTON => T 
+//GOLD => G
+//SILVER => S
+//CRUDEOIL => R
+//NATURALGAS => N
+//ALUMINIUM => A
+//COPPER => C
+//NICKEL => K
+//LEAD => L
+//ZINC => Z
+//MENTHAOIL => M
+//COTTON => T 
 */
