@@ -252,7 +252,7 @@ int main(int argc, char** argv)
         for(int i = 0 ; i < 11 ; i++){
             cout<<"|"<<setw(13)<<setfill(' ')<<comms[i]<<setw(5);
             if (color_val[i] == 0)
-                cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"34m"<<setw(10);
+                cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"36m"<<setw(10);
             else if (color_val[i] == 1){
                 cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"32m"<<setw(10);
             }
@@ -264,7 +264,7 @@ int main(int argc, char** argv)
             cout<<"\x1b["<<"0m";
 
             if (color_avg[i] == 0)
-                cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"34m"<<setw(10);
+                cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"36m"<<setw(10);
             else if (color_avg[i] == 1){
                 cout<<"|"<<setw(5)<<setfill(' ')<<"\x1b["<<"32m"<<setw(10);
             }
