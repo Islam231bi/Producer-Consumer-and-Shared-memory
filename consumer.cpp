@@ -1,14 +1,18 @@
 #include <iostream>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/sem.h>
+#include <sys/stat.h>
 #include <stdio.h>
 #include "helper.h"
 #include <chrono>
 #include <map>
 #include <unistd.h>
 #include <cstring>
-#include <iomanip>
+#include <fcntl.h>
+#include <iomanip> 
 #include <vector>
+
 
 using namespace std;
 
@@ -48,16 +52,93 @@ int main(int argc, char** argv)
 
 	buffer *b = new (mem_seg) buffer;
 
+    // Definitions
+    key_t sem_key;
+    union semun  
+    {
+        int val;
+        struct semid_ds *buf;
+        short array [1];
+    } sem_attr;
+    int mutex, full_count_sem, empty_count_sem;
+
+    if ((sem_key = ftok (MUTEX_KEY, 65)) == -1) {
+        perror ("ftok"); exit (1);
+    }
+    if ((mutex = semget (sem_key, 1, 0660 | IPC_CREAT)) == -1) {
+        perror ("semget"); exit (1);
+    }
+
+    sem_attr.val = 1;
+    if (semctl (mutex, 0, SETVAL, sem_attr) == -1) {
+        perror ("semctl SETVAL"); exit (1);
+    }
+    
+    if ((sem_key = ftok (SEM_FULL_KEY, 65)) == -1) {
+        perror ("ftok"); exit (1);
+    }
+    if ((full_count_sem = semget (sem_key, 1, 0660 | IPC_CREAT)) == -1) {
+        perror ("semget"); exit (1);
+    }
+   
+    sem_attr.val = buffer_size; 
+    if (semctl (full_count_sem, 0, SETVAL, sem_attr) == -1) {
+        perror (" semctl SETVAL "); exit (1);
+    }
+
+
+    if ((sem_key = ftok (SEM_EMPTY_KEY, 65)) == -1) {
+        perror ("ftok"); exit (1);
+    }
+    if ((empty_count_sem = semget (sem_key, 1, 0660 | IPC_CREAT)) == -1) {
+        perror ("semget"); exit (1);
+    }
+    
+    sem_attr.val = 0;
+    if (semctl (empty_count_sem, 0, SETVAL, sem_attr) == -1) {
+        perror (" semctl SETVAL "); exit (1);
+    }
+
+    // Semaphore stuff
+    struct sembuf cons [1];
+    cons [0].sem_num = 0;
+    cons [0].sem_op = 0;
+    cons [0].sem_flg = 0;
+
     while(1){
+
+        // Wating on empty_sem 
+        cons [0].sem_op = -1;
+        if (semop (empty_count_sem, cons, 1) == -1) {
+	    perror ("semop: empty_sem"); exit (1);
+        }
+
+        // Waiting on the mutex
+        cons [0].sem_op = -1;
+        if (semop (mutex, cons, 1) == -1) {
+	    perror ("semop: mutex_sem"); exit (1);
+        }
 
         /*Start critical section*/
         buf_data item = b->value[b->next_out];
-    	// b->value[b->next_out].price = 0;
+    	b->value[b->next_out].price = 0;
     	b->next_out = (b->next_out + 1) % buffer_size;
         /*End of critical section*/
 
-        int cnt = 0;
+        // Signaling mutex
+        cons [0].sem_op = 1;
+        if (semop (mutex, cons, 1) == -1) {
+	    perror ("semop: mutex_sem"); exit (1);
+        }
+
+        // Signaling full_sem
+        cons [0].sem_op = 1;
+        if (semop (full_count_sem, cons, 1) == -1) {
+	    perror ("semop: full_sem"); exit (1);
+        }
+
         // Usage
+        int cnt = 0;
         switch (item.commodity)
         {
         case 'A':

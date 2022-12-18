@@ -3,6 +3,10 @@
 
 using namespace std;
 
+#define MUTEX_KEY "/tmp/mutex-key"
+#define SEM_FULL_KEY "/tmp/sem-full-key"
+#define SEM_EMPTY_KEY "/tmp/sem-empty-key"
+
 // 16 bytes
 typedef struct buf_data {
     char commodity= 'F';
