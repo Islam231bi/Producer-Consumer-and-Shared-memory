@@ -6,6 +6,8 @@
 #include <string.h>
 #include <random>
 #include <chrono>
+#include <sys/time.h>
+#include <ctime>
 #include <map>
 #include <unistd.h>
 #include "helper.h"
@@ -54,15 +56,34 @@ int main(int argc, char** argv)
 
 	buffer *b = (buffer *) mem_seg;
 
+    struct timespec tttt;
+    struct tm tstruct;
+    char data[80];
+
     while(1){
+        
         double price = distribution(generator);
         
+        time_t now = time(0);
+        tstruct = *localtime(&now);
+        strftime(data, sizeof(data), "%m/%d/%Y %X", &tstruct);
+        clock_gettime( CLOCK_REALTIME, &tttt);
+        cout<<"["<<data<<"."<<tttt.tv_nsec/1000000<<"] ";
+        cout<<commodity_name<<": "<<"generating a new value "<<price<<"\n";
+        
+
         /* Start of critical section*/
 		b->value[b->next_in].price = price;
         b->value[b->next_in].commodity = mp[commodity_name];
         b->next_in = (b->next_in + 1) % buffer_size;
         /*End of critical section*/
 
+        tstruct = *localtime(&now);
+        strftime(data, sizeof(data), "%m/%d/%Y %X", &tstruct);
+        clock_gettime( CLOCK_REALTIME, &tttt);
+        cout<<"["<<data<<"."<<tttt.tv_nsec/1000000<<"] ";
+        cout<<commodity_name<<": "<<"sleeping for "<<sleep_val<<" ms\n";
+        
         // Delay
         usleep(1000 * sleep_val);
     }
